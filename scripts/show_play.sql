@@ -1,0 +1,8 @@
+USE AdventureWorks2022
+SET SHOWPLAN_ALL ON;
+GO
+SELECT * FROM Production.Product;
+GO
+SET SHOWPLAN_ALL OFF;
+GO
+
