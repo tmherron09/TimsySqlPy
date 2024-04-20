@@ -45,7 +45,7 @@ class SqlUtil():
         finally:
             self.conn.close()
 
-    def 
+
 
     def get_all_tables(self, database: str = None, store_table_info=False, print_tables_info=False):
         sql_query = """
