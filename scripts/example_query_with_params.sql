@@ -1,0 +1,10 @@
+SELECT [ProductID]
+      ,[Name]
+      ,[SafetyStockLevel]
+      ,[ReorderPoint]
+      ,[StandardCost]
+      ,[ListPrice]
+      ,[DaysToManufacture]
+      ,[DiscontinuedDate]
+  FROM [AdventureWorks2022].[Production].[Product]
+  WHERE [ProductID] = ?

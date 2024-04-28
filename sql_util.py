@@ -2,6 +2,7 @@ import configparser
 from typing import List
 
 import pyodbc
+import pandas as pd
 
 from models.TableInfo import TableInfo
 
@@ -45,6 +46,11 @@ class SqlUtil():
         finally:
             self.conn.close()
 
+    @staticmethod
+    def read_sql_file(file_path: str):
+        with open(file_path, 'r') as file:
+            sql_query = file.read()
+        return sql_query
 
 
     def get_all_tables(self, database: str = None, store_table_info=False, print_tables_info=False):
@@ -69,8 +75,8 @@ class SqlUtil():
                 curr_indx = 0 if len(self.all_table_info) == 0 else len(self.all_table_info)
                 self.all_table_info.insert(curr_indx, TableInfo(*row))
             if print_tables_info:
-                self.print_tables_info(self.all_table_info)
-        elif store_table_info != True & print_tables_info == True:
+                self.print_all_tables_info(self.all_table_info)
+        elif not store_table_info & print_tables_info:
             all_table_info_in_mem: List[TableInfo] = []
             for row in rows:
                 curr_indx = 0 if len(all_table_info_in_mem) == 0 else len(all_table_info_in_mem)
@@ -84,7 +90,44 @@ class SqlUtil():
         for table in all_tables_info:
             print(table)
 
+    @staticmethod
+    def print_rows(rows: List[pyodbc.Row]):
+        for idx, row in enumerate(rows):
+            print(idx, ":", row)
+
+    def execute_sql_file(self, file_path: str, database: str = None):
+        try:
+            sql_query = self.read_sql_file(file_path)
+            self.open_connection()
+            cursor = self.conn.cursor()
+            cursor.execute(sql_query)
+            rows: List[pyodbc.Row] = cursor.fetchall()
+            self.conn.commit()
+            return rows
+        except Exception as e:
+            print(e)
+            raise e
+        finally:
+            self.conn.close()
+
+    def sql_file_to_df(self, file_path: str, database: str = None):
+        try:
+            sql_query = self.read_sql_file(file_path)
+            self.open_connection()
+            df = pd.read_sql(sql_query, self.conn)
+            return df
+        except Exception as e:
+            print(e)
+            raise e
+        finally:
+            self.conn.close()
+
 
 if __name__ == "__main__":
     sql_util = SqlUtil()
-    sql_util.get_all_tables()
+    # sql_util.get_all_tables()
+    result = sql_util.execute_sql_file('scripts/example_basic_query.sql')
+    sql_util.print_rows(result)
+
+    pd_result = sql_util.sql_file_to_df('scripts/example_basic_query.sql')
+    print(pd_result)

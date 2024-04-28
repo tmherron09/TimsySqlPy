@@ -1,8 +1,19 @@
 import configparser
-from sqlalchemy import create_engine, text, Engine
-from sqlalchemy.orm import sessionmaker, Session, Query
+from typing import Sequence
+
+from sqlalchemy import create_engine, text, Engine, CursorResult
+from sqlalchemy.orm import sessionmaker, Session, Query, declarative_base
 from sqlalchemy import Column, Integer, String, MetaData, Table
 from sqlalchemy.schema import CreateTable
+import pandas as pd
+
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = 'Person'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    age = Column(Integer)
 
 
 class SqlAlchemyUtil():
@@ -32,7 +43,8 @@ class SqlAlchemyUtil():
     def _execute_query(self, query_func):
         session = self.Session()
         try:
-            result = query_func(session)
+            cursor_result: CursorResult = query_func(session)
+            result = cursor_result.all()
             session.commit()
             return result
         except:
@@ -42,6 +54,16 @@ class SqlAlchemyUtil():
             raise
         finally:
             session.close()
+
+    def example_basic_query(self):
+        def query_func(session):
+            with open('scripts/example_basic_query.sql', 'r') as file:
+                sql_query = file.read()
+            cursor = session.execute(text(sql_query))
+            return cursor
+
+
+        return self._execute_query(query_func)
 
     def query_all_tables(self):
         def query_func(session: Session):
@@ -91,13 +113,13 @@ class SqlAlchemyUtil():
 
         return self._execute_query(query_func)
 
-    def query_create_table_stmt(self, tablename: str) -> None:
+    def query_create_table_stmt(self, table_name: str) -> None:
         def query_func(session: Session):
             metadata = MetaData()
-            table = Table(tablename, metadata, autoload_with=self.engine, schema='Production')
+            table = Table(table_name, metadata, autoload_with=self.engine, schema='Production')
 
             # get create table statement
-            create_table_stmt = CreateTable(table)
+            create_table_stmt: CreateTable = CreateTable(table)
             print(create_table_stmt)
             print('Done')
 
@@ -110,11 +132,18 @@ class SqlAlchemyUtil():
 
         return self._execute_query(query_func)
 
+    def pandas_test(self):
+        df = pd.read_sql_table('Person', self.engine, schema='Person', index_col='BusinessEntityID', chunksize=10)
+        dfe = enumerate(df)
+        print(next(dfe))
+        print(next(dfe))
+        print(next(dfe))
+
 
 if __name__ == "__main__":
     sqlAlchemyUtil = SqlAlchemyUtil()
     # sqlAlchemyUtil.query_all_tables()
-    sqlAlchemyUtil.query_create_table_stmt('Product')
+    # sqlAlchemyUtil.query_create_table_stmt('Product')
     # config = configparser.ConfigParser()
     # config_section = 'DEFAULT'
     # config.read('config.ini')
@@ -127,4 +156,6 @@ if __name__ == "__main__":
     # with engine.connect() as conn:
     #     result = conn.execute(text("select * FROM sys.tables"))
     #     print(result.all())
-
+    # result = sqlAlchemyUtil.example_basic_query()
+    # print(result)
+    sqlAlchemyUtil.pandas_test()
