@@ -141,7 +141,7 @@ print(sql_output)
 
 sql_statement = SqlStatement(source_identifier=None, database_name="database1", schema_name="dbo", table_name="table1", columns=["column1", "column2", "column3"])
 sql_statement.add_order_by(["column1", "column2"])
-test_c: char = 'c'
+test_c = 'c'
 sql_statement.add_where_clause("column2", operator= ">", value= 'c')
 sql_statement.add_group_by(["column1", "column2"])
 sql_statement.set_ordered_direction(OrderByEnum.DESC)

@@ -6,7 +6,7 @@ import pyodbc
 from models.TableInfo import TableInfo
 
 
-class SqlUtil():
+class SqlUtil:
     def __init__(self, config_section='DEFAULT'):
         self.config = configparser.ConfigParser()
         self.config_section = config_section

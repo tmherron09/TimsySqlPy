@@ -1,7 +1,7 @@
 import configparser
-from typing import Sequence
+from typing import Sequence, Any
 
-from sqlalchemy import create_engine, text, Engine, CursorResult
+from sqlalchemy import create_engine, text, Engine, CursorResult, Row
 from sqlalchemy.orm import sessionmaker, Session, Query, declarative_base
 from sqlalchemy import Column, Integer, String, MetaData, Table
 from sqlalchemy.schema import CreateTable
@@ -16,7 +16,7 @@ class User(Base):
     age = Column(Integer)
 
 
-class SqlAlchemyUtil():
+class SqlAlchemyUtil:
     def __init__(self, config_section='DEFAULT'):
         self.config = configparser.ConfigParser()
         self.config_section = config_section
@@ -113,7 +113,7 @@ class SqlAlchemyUtil():
 
         return self._execute_query(query_func)
 
-    def query_create_table_stmt(self, table_name: str) -> None:
+    def query_create_table_stmt(self, table_name: str) -> Sequence[Row[Any]]:
         def query_func(session: Session):
             metadata = MetaData()
             table = Table(table_name, metadata, autoload_with=self.engine, schema='Production')

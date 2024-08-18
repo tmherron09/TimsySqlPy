@@ -1,9 +1,9 @@
-import dataclasses
+from dataclasses import dataclass
 from typing import List
 
 
-@dataclasses
-class Proc():
+@dataclass
+class Proc:
     name: str
     parameters: str #TODO: Create Parameter Class.
     server: str

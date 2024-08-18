@@ -1,10 +1,10 @@
-import dataclasses
+from dataclasses import dataclass
 
 from sql_column_type import SQLColumnType
 
 
-@dataclasses
-class ColumnInstance():
+@dataclass
+class ColumnInstance:
     alias: str
     table: str
     sql_column_type: SQLColumnType

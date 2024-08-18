@@ -1,14 +1,15 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
-import dateutil
+import dateutil as dateutil
+from dateutil.parser import parse
 from kink import inject
 
 import JsonService
 
 
 @inject
-@dataclass(repr=True, init=True, unsafe_hash=True)
+@dataclass(init=True, unsafe_hash=True)
 class NoteModel:
     _author: str = field(init=True)
     content: str
@@ -37,7 +38,7 @@ class NoteModel:
 
     def _load_create_date(self, new_date):
         if not isinstance(new_date, datetime):
-            self._create_date = dateutil.parser.parse(new_date)
+            self._create_date = parse(new_date)
         else:
             self._create_date = new_date
 
